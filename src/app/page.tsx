@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Download, Shield, Zap } from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -16,7 +17,9 @@ export default function HomePage() {
             <nav className="flex space-x-4">
               <Button variant="ghost">How it Works</Button>
               <Button variant="ghost">Pricing</Button>
-              <Button variant="outline">Sign In</Button>
+              <Link href="/convert">
+                <Button variant="outline">Try It Free</Button>
+              </Link>
             </nav>
           </div>
         </div>
@@ -33,9 +36,11 @@ export default function HomePage() {
             ready for Excel, QuickBooks, or any accounting software.
           </p>
           <div className="flex justify-center space-x-4">
-            <Button size="lg" className="text-lg px-8 py-3">
-              Try Free (5 conversions)
-            </Button>
+            <Link href="/convert">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Try Free (5 conversions)
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="text-lg px-8 py-3">
               View Demo
             </Button>
@@ -125,7 +130,9 @@ export default function HomePage() {
                 <p>✅ 5 conversions per month</p>
                 <p>✅ MTN & Airtel support</p>
                 <p>✅ Basic CSV format</p>
-                <Button className="w-full mt-4">Get Started Free</Button>
+                <Link href="/convert">
+                  <Button className="w-full mt-4">Get Started Free</Button>
+                </Link>
               </CardContent>
             </Card>
             <Card className="border-2 border-blue-500 relative">
@@ -142,7 +149,9 @@ export default function HomePage() {
                 <p>✅ Bulk upload</p>
                 <p>✅ Custom CSV templates</p>
                 <p>✅ Priority support</p>
-                <Button className="w-full mt-4">Upgrade to Pro</Button>
+                <Link href="/convert">
+                  <Button className="w-full mt-4">Upgrade to Pro</Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
