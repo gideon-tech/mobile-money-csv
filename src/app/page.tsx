@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
@@ -39,6 +40,12 @@ function AirtelLogo({ className, invert = false }: { className?: string; invert?
     />
   );
 }
+=======
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Download, Shield, Zap } from "lucide-react";
+import Link from "next/link";
+>>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
 
 export default function HomePage() {
   const [isDragging, setIsDragging] = useState(false);
@@ -177,6 +184,16 @@ export default function HomePage() {
             <div className="flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-200">
               <AirtelLogo className="h-5 w-auto" />
             </div>
+<<<<<<< HEAD
+=======
+            <nav className="flex space-x-4">
+              <Button variant="ghost">How it Works</Button>
+              <Button variant="ghost">Pricing</Button>
+              <Link href="/convert">
+                <Button variant="outline">Try It Free</Button>
+              </Link>
+            </nav>
+>>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
           </div>
         </div>
       </header>
@@ -209,6 +226,7 @@ export default function HomePage() {
             <strong className="text-white">Airtel Money</strong> PDF statement and download
             a perfectly formatted CSV — ready for Excel, QuickBooks, or any accounting tool.
           </p>
+<<<<<<< HEAD
 
           <div className="flex flex-wrap justify-center gap-5 text-sm text-slate-400 mb-10">
             <div className="flex items-center gap-1.5"><Lock className="w-4 h-4 text-green-400" /><span>Never stored</span></div>
@@ -417,6 +435,17 @@ export default function HomePage() {
                 </p>
               </>
             )}
+=======
+          <div className="flex justify-center space-x-4">
+            <Link href="/convert">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Try Free (5 conversions)
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-3">
+              View Demo
+            </Button>
+>>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
           </div>
         </div>
       </section>
@@ -507,6 +536,7 @@ export default function HomePage() {
         </div>
       </section>
 
+<<<<<<< HEAD
       {/* ── FEATURES ── */}
       <section className="py-16 px-4 bg-white border-y border-slate-200">
         <div className="max-w-5xl mx-auto">
@@ -527,6 +557,45 @@ export default function HomePage() {
                 <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
               </div>
             ))}
+=======
+        {/* Pricing Preview */}
+        <div className="bg-gray-50 rounded-2xl p-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Simple, Fair Pricing</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="border-2 border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-xl">Free Tier</CardTitle>
+                <p className="text-3xl font-bold">$0/month</p>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p>✅ 5 conversions per month</p>
+                <p>✅ MTN & Airtel support</p>
+                <p>✅ Basic CSV format</p>
+                <Link href="/convert">
+                  <Button className="w-full mt-4">Get Started Free</Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-blue-500 relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
+                Most Popular
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Pro</CardTitle>
+                <p className="text-3xl font-bold">$25/month</p>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p>✅ Unlimited conversions</p>
+                <p>✅ Advanced categorization</p>
+                <p>✅ Bulk upload</p>
+                <p>✅ Custom CSV templates</p>
+                <p>✅ Priority support</p>
+                <Link href="/convert">
+                  <Button className="w-full mt-4">Upgrade to Pro</Button>
+                </Link>
+              </CardContent>
+            </Card>
+>>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
           </div>
         </div>
       </section>
