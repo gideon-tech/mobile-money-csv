@@ -105,26 +105,30 @@ export class MobileMoneyParser {
   static generateCSV(statement: ParsedStatement): string {
     const headers = [
       'Date',
-      'Time', 
+      'Time',
       'Type',
       'Description',
-      'Amount',
-      'Balance',
+      'Amount (UGX)',
+      'Fees (UGX)',
+      'Taxes (UGX)',
+      'Balance (UGX)',
       'Counter Party',
       'Reference',
-      'Provider'
+      'Provider',
     ];
 
-    const rows = statement.transactions.map(transaction => [
+    const rows = statement.transactions.map((transaction) => [
       transaction.date,
       transaction.time,
       transaction.type,
-      `"${transaction.description}"`, // Escape description for CSV
+      `"${transaction.description.replace(/"/g, '""')}"`, // escape quotes in CSV
       transaction.amount.toFixed(2),
+      (transaction.fees ?? 0).toFixed(2),
+      (transaction.taxes ?? 0).toFixed(2),
       transaction.balance.toFixed(2),
       transaction.counterParty || '',
       transaction.reference,
-      transaction.provider
+      transaction.provider,
     ]);
 
     // Combine headers and rows

@@ -4,9 +4,11 @@ export interface MobileMoneyTransaction {
   time: string;
   type: 'Send' | 'Receive' | 'Withdraw' | 'Deposit' | 'Pay Bill' | 'Buy Airtime' | 'Other';
   amount: number;
+  fees?: number;
+  taxes?: number;
   balance: number;
   reference: string;
-  counterParty?: string;  // Phone number or merchant name
+  counterParty?: string;
   description: string;
   transactionId: string;
   provider: 'MTN' | 'Airtel';
