@@ -1,4 +1,4 @@
-import pdf from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export interface PDFProcessorResult {
   success: boolean;
@@ -13,19 +13,33 @@ export interface PDFProcessorResult {
 
 export class PDFProcessor {
   /**
-   * Extract text from PDF buffer
+   * Extract text from PDF buffer using pdf-parse v2 API
    */
   static async extractText(buffer: Buffer): Promise<PDFProcessorResult> {
     try {
-      const data = await pdf(buffer);
-      
+      const parser = new PDFParse({ data: buffer });
+      const textResult = await parser.getText();
+
+      // Fetch metadata separately
+      let title: string | undefined;
+      let creator: string | undefined;
+      try {
+        const infoResult = await parser.getInfo();
+        title = infoResult.info?.Title;
+        creator = infoResult.info?.Creator;
+      } catch {
+        // metadata is optional — don't fail the whole extraction if it errors
+      }
+
+      await parser.destroy();
+
       return {
         success: true,
-        text: data.text,
+        text: textResult.text,
         metadata: {
-          pages: data.numpages,
-          title: data.info?.Title,
-          creator: data.info?.Creator,
+          pages: textResult.total,
+          title,
+          creator,
         },
       };
     } catch (error) {
