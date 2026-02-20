@@ -4,9 +4,9 @@ import { processedStatements } from '../../process/[uploadId]/route';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uploadId: string } }
+  { params }: { params: Promise<{ uploadId: string }> }
 ) {
-  const uploadId = params.uploadId;
+  const { uploadId } = await params;
   const { searchParams } = new URL(request.url);
   const format = searchParams.get('format') || 'csv';
 

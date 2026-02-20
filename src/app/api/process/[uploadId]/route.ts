@@ -23,9 +23,9 @@ const processedStatements = new Map<string, {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { uploadId: string } }
+  { params }: { params: Promise<{ uploadId: string }> }
 ) {
-  const uploadId = params.uploadId;
+  const { uploadId } = await params;
 
   try {
     // Get uploaded file
@@ -97,9 +97,9 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uploadId: string } }
+  { params }: { params: Promise<{ uploadId: string }> }
 ) {
-  const uploadId = params.uploadId;
+  const { uploadId } = await params;
   const { searchParams } = new URL(request.url);
   const format = searchParams.get('format'); // 'preview' or 'summary'
 
