@@ -547,80 +547,88 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── PRICING PREVIEW ── */}
-      <section id="pricing" className="py-16 px-4 bg-slate-50 dark:bg-slate-950">
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-16 px-4 bg-slate-50 dark:bg-slate-950">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Simple Pricing</h2>
-            <p className="text-slate-500 dark:text-slate-400">
-              No hidden fees. No credit card required to start.{' '}
-              <Link href="/pricing" className="font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity" style={{ color: MTN_YELLOW }}>
-                See full pricing →
-              </Link>
-            </p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">What Our Users Say</h2>
+            <p className="text-slate-500 dark:text-slate-400">Real people saving real time with MOAir</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          <div className="grid md:grid-cols-3 gap-6">
 
-            {/* Free */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm flex flex-col">
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Free</p>
-              <p className="text-5xl font-extrabold text-slate-900 dark:text-white mb-1">$0</p>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">per month</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {['5 conversions / month', 'MTN & Airtel support', 'Standard CSV export', 'No sign-up required'].map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />{f}
-                  </li>
+            {/* Sarah – Accountant */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-7 shadow-sm flex flex-col gap-5">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4" viewBox="0 0 20 20" fill="#FFCB05"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                 ))}
-              </ul>
-              <button
-                onClick={() => document.getElementById('upload')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full py-3 rounded-xl font-bold text-slate-900 dark:text-white border-2 border-slate-900 dark:border-slate-500 hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-900 transition-all text-sm mt-auto"
-              >
-                Get Started Free
-              </button>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed flex-1">
+                &ldquo;I reconcile mobile money records for three SME clients every month. Before MOAir, it was two hours of copy-pasting. Now it&apos;s literally two minutes. The CSV columns map perfectly into QuickBooks — no cleanup needed.&rdquo;
+              </p>
+              <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <Image
+                  src="/testimonials/sarah.svg"
+                  alt="Sarah Nakato"
+                  width={48}
+                  height={48}
+                  className="rounded-full flex-shrink-0"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">Sarah Nakato</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Certified Accountant · Kampala</p>
+                </div>
+              </div>
             </div>
 
-            {/* Pro */}
-            <div className="rounded-2xl p-8 shadow-lg relative overflow-hidden flex flex-col" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' }}>
-              <div className="absolute top-5 right-5 text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: MTN_YELLOW, color: '#1a1a1a' }}>Most Popular</div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Pro</p>
-              <p className="text-5xl font-extrabold text-white mb-1">$25</p>
-              <p className="text-slate-400 text-sm mb-6">per month</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {['Unlimited conversions', 'MTN & Airtel support', 'Advanced categorization', 'Bulk PDF upload', 'Custom CSV templates', 'Priority support'].map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-white">
-                    <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: MTN_YELLOW }} />{f}
-                  </li>
+            {/* David – Business Owner */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-7 shadow-sm flex flex-col gap-5 md:scale-[1.02] md:shadow-md">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4" viewBox="0 0 20 20" fill="#FFCB05"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                 ))}
-              </ul>
-              <Link href="/pricing" className="w-full py-3 rounded-xl font-bold text-slate-900 transition-all hover:opacity-90 text-sm mt-auto text-center block" style={{ backgroundColor: MTN_YELLOW }}>
-                Upgrade to Pro
-              </Link>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed flex-1">
+                &ldquo;I run a wholesale shop and almost all payments come through MTN MoMo. Tracking them used to be a nightmare. MOAir turned a 6-month statement into a clean spreadsheet in seconds. My accountant was shocked.&rdquo;
+              </p>
+              <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <Image
+                  src="/testimonials/david.svg"
+                  alt="David Okonkwo"
+                  width={48}
+                  height={48}
+                  className="rounded-full flex-shrink-0"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">David Okonkwo</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Wholesale Business Owner · Entebbe</p>
+                </div>
+              </div>
             </div>
 
-            {/* Enterprise */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-600 p-8 shadow-sm flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 opacity-5"
-                style={{ background: `linear-gradient(135deg, ${MTN_YELLOW}, ${AIRTEL_RED})`, borderRadius: '0 1rem 0 100%' }} />
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Enterprise</p>
-              <p className="text-5xl font-extrabold text-slate-900 dark:text-white mb-1">Custom</p>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">tailored to your needs</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {['Everything in Pro', 'Dedicated API access', 'White-label CSV output', 'SLA & uptime guarantee', 'Multi-user team access', 'Dedicated account manager'].map((f) => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300">
-                    <CheckCircle className="w-4 h-4 flex-shrink-0 text-slate-900 dark:text-slate-300" />{f}
-                  </li>
+            {/* Grace – Freelancer */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-7 shadow-sm flex flex-col gap-5">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4" viewBox="0 0 20 20" fill="#FFCB05"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                 ))}
-              </ul>
-              <a
-                href="mailto:hello@moair.app"
-                className="w-full py-3 rounded-xl font-bold text-white text-sm text-center transition-all hover:opacity-90 mt-auto block"
-                style={{ backgroundColor: AIRTEL_RED }}
-              >
-                Contact Us
-              </a>
-              <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-3">We&apos;ll respond within 24 hours</p>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed flex-1">
+                &ldquo;As a freelancer, I get paid on both Airtel and MTN. Tax season was always stressful pulling records together. MOAir handles both networks and I have my full year transaction history exported in under a minute.&rdquo;
+              </p>
+              <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <Image
+                  src="/testimonials/grace.svg"
+                  alt="Grace Muwanga"
+                  width={48}
+                  height={48}
+                  className="rounded-full flex-shrink-0"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white text-sm">Grace Muwanga</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Freelance Consultant · Jinja</p>
+                </div>
+              </div>
             </div>
 
           </div>
