@@ -10,7 +10,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/gideon-tech/mobile-money-csv?style=for-the-badge)](https://github.com/gideon-tech/mobile-money-csv)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-*Trusted by 1000+ Uganda businesses for automated bookkeeping*
+*Transforming mobile money data for Uganda businesses*
 
 </div>
 
@@ -125,22 +125,23 @@ graph LR
 
 ## 📈 **Business Impact**
 
-### 💰 **ROI Calculator**
+### 💰 **Potential ROI**
 ```
-📊 Typical Accountant:
+📊 Example: Typical Accountant in Uganda
 • 15 clients × 2 statements/month = 30 statements
 • Manual processing: 2 hours/statement = 60 hours/month
-• Billing rate: UGX 25,000/hour = UGX 1,500,000/month lost
-• MoAir cost: UGX 56,250/month
-• NET SAVINGS: UGX 1,443,750/month (2,556% ROI!)
+• Billing rate: UGX 25,000/hour = UGX 1,500,000 potential time value
+• MoAir Pro cost: UGX 56,250/month
+• POTENTIAL SAVINGS: UGX 1,443,750/month
+• ROI: 2,556% time savings potential
 ```
 
-### 🎯 **Customer Success Stories**
-> *"MoAir saved our accounting firm 40 hours per month. We can now serve 3x more clients!"*  
-> — **Sarah K.**, CPA, Kampala
-
-> *"From 3 hours to 3 minutes per statement. This is a game changer!"*  
-> — **David M.**, Restaurant Owner, Entebbe
+### 🎯 **Why Choose MoAir?**
+- **🇺🇬 Built for Uganda** - Specifically designed for MTN and Airtel statements
+- **⚡ Instant Results** - Convert in seconds, not hours
+- **🔒 Secure & Private** - Files deleted after processing
+- **💰 Cost Effective** - 5 free conversions monthly
+- **📱 Modern Interface** - Clean, intuitive design
 
 ---
 
@@ -340,23 +341,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 🏆 **Recognition**
-
-<div align="center">
-
-[![Product Hunt](https://img.shields.io/badge/Product_Hunt-🚀-ff6154?style=for-the-badge)](https://www.producthunt.com/posts/moair)
-[![Featured](https://img.shields.io/badge/Featured-Uganda_Tech_Awards-gold?style=for-the-badge)](https://ugandatechawards.com)
-
-</div>
-
-### 🎉 **Awards & Features**
-- 🏆 **Uganda Tech Awards 2026** - Best Fintech Innovation
-- 📰 **Daily Monitor** - Featured Startup
-- 🎯 **Product Hunt** - Product of the Day
-- 📺 **NTV Uganda** - Tech Interview
-
----
-
 ## 🔗 **Links**
 
 <div align="center">
@@ -375,7 +359,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Made with ❤️ in Uganda 🇺🇬**
 
 *Transforming mobile money data, one conversion at a time*
-
-[![Star this repo](https://img.shields.io/github/stars/gideon-tech/mobile-money-csv?style=social)](https://github.com/gideon-tech/mobile-money-csv)
 
 </div>
