@@ -1,31 +1,70 @@
-import { MobileMoneyTransaction, ParsedStatement, ParserResult } from './types';
+import { MobileMoneyTransaction, ParserResult } from './types';
 
+/**
+ * Airtel Money Uganda statement parser.
+ *
+ * After PDF text extraction the text is collapsed — dates, times and
+ * transaction IDs are concatenated with no spaces:
+ *
+ *   {12-digit TxID}{DD-MM-YY}{HH:MM}{AM|PM} {description} Transaction Successful {amount} {Credit|Debit} {fee}{balance}
+ *
+ * Examples (spaces shown only where they actually appear in the extracted text):
+ *   13713103560420-12-2502:11PM Paid to 1097545 Bundles Mobile APP Bundles Mobile APP Transaction Successful 500.00 Debit 0.0065,359.50
+ *   137133041958 20-12-2502:42PM Sent Money to 752948722 , LUBEGA MARKWASSWA Transaction Successful 30,880.00 Debit 500.0033,979.50
+ *
+ * Note: fee and balance are also concatenated when fee ends in .00 (e.g. "0.0065,359.50").
+ *
+ * Statement header:
+ *   Mobile Number:   709599591
+ *   Statement Period:   20-Dec-25 to 20-Feb-26
+ *   Opening Balance:   Ugx 65,859.50
+ *   Closing Balance:   Ugx 16,935.50
+ */
 export class AirtelParser {
-  private static readonly AIRTEL_PATTERNS = {
-    // Airtel Money transaction patterns (different format from MTN)
-    TRANSACTION_LINE: /(\d{2}-\d{2}-\d{4})\s+(\d{2}:\d{2}:\d{2})\s+(.*?)\s+([\d,]+)\s+([\d,]+)\s+([A-Z0-9]+)/g,
-    SEND_MONEY: /Transfer to (\d+)/i,
-    RECEIVE_MONEY: /Received from (\d+)/i,
-    WITHDRAW: /Cash withdrawal|ATM withdrawal/i,
-    DEPOSIT: /Cash deposit|Deposit from agent/i,
-    AIRTIME: /Airtime purchase|Buy airtime/i,
-    PAY_BILL: /Bill payment|Pay to/i,
-    MERCHANT_PAYMENT: /Payment to merchant|Merchant payment/i,
-    ACCOUNT_INFO: /Mobile Number[:\s]+(\d+)/i,
-    PERIOD: /Period[:\s]+(\d{2}-\d{2}-\d{4})\s+to\s+(\d{2}-\d{2}-\d{4})/i,
-    OPENING_BALANCE: /Opening Balance[:\s]+UGX\s*([\d,]+)/i,
-    CLOSING_BALANCE: /Closing Balance[:\s]+UGX\s*([\d,]+)/i,
-  };
+  // Split on: {12-digit TxID}{optional space}{DD-MM-YY}{HH:MM}{AM|PM}
+  private static readonly TX_SPLIT_RE =
+    /(?=\d{12}\s*\d{2}-\d{2}-\d{2}\d{2}:\d{2}[AP]M)/;
+
+  // Parse one chunk. Groups:
+  //  1 txId  2 date(DD-MM-YY)  3 time(HH:MM)  4 period(AM|PM)
+  //  5 description  6 amount  7 direction(Credit|Debit)  8 fee  9 balance
+  // Fee and balance may be concatenated (no space), so fee uses non-greedy match.
+  private static readonly TX_RE =
+    /^(\d{12})\s*(\d{2}-\d{2}-\d{2})(\d{2}:\d{2})([AP]M)\s+([\s\S]*?)\s*Transaction Successful\s+([\d,]+\.\d{2})\s+(Credit|Debit)\s+([\d,]+?\.\d{2})\s*([\d,]+\.\d{2})/;
+
+  private static readonly MOBILE_RE  = /Mobile Number[:\s]+(\d+)/i;
+  private static readonly PERIOD_RE  =
+    /Statement Period[:\s]+(\d{2}-[A-Za-z]+-\d{2})\s+to\s+(\d{2}-[A-Za-z]+-\d{2})/i;
+  private static readonly OPENING_RE = /Opening Balance[:\s]+Ugx\s*([\d,]+\.\d{2})/i;
+  private static readonly CLOSING_RE = /Closing Balance[:\s]+Ugx\s*([\d,]+\.\d{2})/i;
 
   static parse(text: string): ParserResult {
     try {
-      const statement = this.extractStatementInfo(text);
-      const transactions = this.extractTransactions(text);
-      
+      const accountNumber = text.match(this.MOBILE_RE)?.[1] ?? 'Unknown';
+
+      const periodMatch = text.match(this.PERIOD_RE);
+      const period = periodMatch
+        ? { from: this.convertPeriodDate(periodMatch[1]), to: this.convertPeriodDate(periodMatch[2]) }
+        : { from: 'Unknown', to: 'Unknown' };
+
+      const openingBalance = this.parseAmount(text.match(this.OPENING_RE)?.[1] ?? '0');
+      const closingBalance = this.parseAmount(text.match(this.CLOSING_RE)?.[1] ?? '0');
+
+      const transactions = text
+        .split(this.TX_SPLIT_RE)
+        .map((c) => c.trim())
+        .filter((c) => /^\d{12}/.test(c))
+        .map((c) => this.parseChunk(c))
+        .filter((t): t is MobileMoneyTransaction => t !== null);
+
       return {
         success: true,
         data: {
-          ...statement,
+          provider: 'Airtel',
+          accountNumber,
+          period,
+          openingBalance,
+          closingBalance,
           transactions,
           totalTransactions: transactions.length,
         },
@@ -38,126 +77,145 @@ export class AirtelParser {
     }
   }
 
-  private static extractStatementInfo(text: string): Omit<ParsedStatement, 'transactions' | 'totalTransactions'> {
-    // Extract account number (mobile number for Airtel)
-    const accountMatch = text.match(this.AIRTEL_PATTERNS.ACCOUNT_INFO);
-    const accountNumber = accountMatch ? accountMatch[1] : 'Unknown';
+  // ─── private helpers ───────────────────────────────────────────────────────
 
-    // Extract statement period
-    const periodMatch = text.match(this.AIRTEL_PATTERNS.PERIOD);
-    const period = periodMatch ? {
-      from: this.convertAirtelDate(periodMatch[1]),
-      to: this.convertAirtelDate(periodMatch[2]),
-    } : {
-      from: 'Unknown',
-      to: 'Unknown',
-    };
+  private static parseChunk(chunk: string): MobileMoneyTransaction | null {
+    const m = this.TX_RE.exec(chunk);
+    if (!m) return null;
 
-    // Extract opening balance
-    const openingBalanceMatch = text.match(this.AIRTEL_PATTERNS.OPENING_BALANCE);
-    const openingBalance = openingBalanceMatch ? 
-      parseFloat(openingBalanceMatch[1].replace(/,/g, '')) : 0;
+    const [, txId, rawDate, rawTime, rawPeriod, rawDesc, amountStr, direction, feeStr, balanceStr] = m;
 
-    // Extract closing balance
-    const closingBalanceMatch = text.match(this.AIRTEL_PATTERNS.CLOSING_BALANCE);
-    const closingBalance = closingBalanceMatch ? 
-      parseFloat(closingBalanceMatch[1].replace(/,/g, '')) : 0;
+    // Collapse any remaining whitespace / newlines in the description
+    const description = rawDesc.replace(/\s+/g, ' ').trim();
 
-    return {
-      provider: 'Airtel',
-      accountNumber,
-      period,
-      openingBalance,
-      closingBalance,
-    };
-  }
-
-  private static convertAirtelDate(airtelDate: string): string {
-    // Convert Airtel date format (DD-MM-YYYY) to standard (DD/MM/YYYY)
-    return airtelDate.replace(/-/g, '/');
-  }
-
-  private static extractTransactions(text: string): MobileMoneyTransaction[] {
-    const transactions: MobileMoneyTransaction[] = [];
-    const lines = text.split('\n');
-
-    for (const line of lines) {
-      const transaction = this.parseTransactionLine(line);
-      if (transaction) {
-        transactions.push(transaction);
-      }
-    }
-
-    return transactions;
-  }
-
-  private static parseTransactionLine(line: string): MobileMoneyTransaction | null {
-    // Try to match the standard Airtel transaction format
-    const match = this.AIRTEL_PATTERNS.TRANSACTION_LINE.exec(line);
-    
-    if (!match) {
-      // Reset regex lastIndex for next iteration
-      this.AIRTEL_PATTERNS.TRANSACTION_LINE.lastIndex = 0;
-      return null;
-    }
-
-    const [, date, time, description, amountStr, balanceStr, reference] = match;
-    
-    // Reset regex lastIndex
-    this.AIRTEL_PATTERNS.TRANSACTION_LINE.lastIndex = 0;
-
-    // Convert Airtel date format
-    const standardDate = this.convertAirtelDate(date);
-
-    // Determine transaction type
-    const type = this.determineTransactionType(description);
-    
-    // Extract counterparty if applicable
+    const type = this.mapType(description, direction);
     const counterParty = this.extractCounterParty(description, type);
 
     return {
-      date: standardDate,
-      time,
+      date: this.convertTxDate(rawDate),
+      time: this.convertTime(rawTime, rawPeriod),
       type,
-      amount: parseFloat(amountStr.replace(/,/g, '')),
-      balance: parseFloat(balanceStr.replace(/,/g, '')),
-      reference,
+      description,
+      amount: this.parseAmount(amountStr),
+      fees: this.parseAmount(feeStr),
+      taxes: 0,
+      balance: this.parseAmount(balanceStr),
       counterParty,
-      description: description.trim(),
-      transactionId: reference,
+      reference: txId,
+      transactionId: txId,
       provider: 'Airtel',
     };
   }
 
-  private static determineTransactionType(description: string): MobileMoneyTransaction['type'] {
-    if (this.AIRTEL_PATTERNS.SEND_MONEY.test(description)) return 'Send';
-    if (this.AIRTEL_PATTERNS.RECEIVE_MONEY.test(description)) return 'Receive';
-    if (this.AIRTEL_PATTERNS.WITHDRAW.test(description)) return 'Withdraw';
-    if (this.AIRTEL_PATTERNS.DEPOSIT.test(description)) return 'Deposit';
-    if (this.AIRTEL_PATTERNS.AIRTIME.test(description)) return 'Buy Airtime';
-    if (this.AIRTEL_PATTERNS.PAY_BILL.test(description) || this.AIRTEL_PATTERNS.MERCHANT_PAYMENT.test(description)) {
-      return 'Pay Bill';
-    }
-    return 'Other';
+  private static mapType(description: string, direction: string): MobileMoneyTransaction['type'] {
+    if (/Sent Money to/i.test(description)) return 'Send';
+    if (/Received (from|From|Money from)/i.test(description)) return 'Receive';
+    if (/Paid to .+?(Bundles|Prepaid Mobile App|Data bundle)/i.test(description)) return 'Buy Airtime';
+    if (/Paid to/i.test(description)) return 'Pay Bill';
+    // Fallback: use Credit/Debit direction
+    return direction === 'Credit' ? 'Receive' : 'Send';
   }
 
-  private static extractCounterParty(description: string, type: MobileMoneyTransaction['type']): string | undefined {
+  private static extractCounterParty(
+    description: string,
+    type: MobileMoneyTransaction['type']
+  ): string | undefined {
     if (type === 'Send') {
-      const match = description.match(this.AIRTEL_PATTERNS.SEND_MONEY);
-      return match ? match[1] : undefined;
-    }
-    
-    if (type === 'Receive') {
-      const match = description.match(this.AIRTEL_PATTERNS.RECEIVE_MONEY);
-      return match ? match[1] : undefined;
+      // "Sent Money to 752948722 , LUBEGA MARKWASSWA" → "LUBEGA MARKWASSWA"
+      // "Sent Money to 703485388 NANTEGE MADINA ENTERPRISES NANTEGE MADINA ENTERPRISES" → "NANTEGE MADINA ENTERPRISES"
+      // "Sent Money to 701588516SHANITAH NASSANGA" → "SHANITAH NASSANGA" (no space between number and name)
+      const m = description.match(/Sent Money to \d+\s*,?\s*(.+)/i);
+      return m ? this.dedup(m[1].trim()) : undefined;
     }
 
-    // Extract merchant name for bill payments
-    if (type === 'Pay Bill') {
-      const merchantMatch = description.match(/to\s+(.+?)(?:\s|$)/i);
-      return merchantMatch ? merchantMatch[1].trim() : undefined;
+    if (type === 'Receive') {
+      // With comma: "Received from 702833100 , GORRETH NANGOYE" → "GORRETH NANGOYE"
+      //             "Received From 627992 , JESCA NAKANDA" → "JESCA NAKANDA"
+      const commaMatch = description.match(/Received (?:Money )?(?:from|From) \d+\s*,\s*(.+)/i);
+      if (commaMatch) return this.dedup(commaMatch[1].trim());
+
+      // No comma, entity name directly follows ID (name duplicated in PDF):
+      // "Received From 100101373 HOUSING FINANCE BANK LIMITED HOUSING FINANCE BANK LIMITED"
+      if (/^Received From /i.test(description)) {
+        const entityMatch = description.match(/^Received From \d+\s*(.+)/i);
+        if (entityMatch) return this.dedup(entityMatch[1].trim());
+      }
+
+      // "Received Money from 100105152. Sender TID 7566213888" → return phone number
+      const agentMatch = description.match(/Received Money from (\d+)/i);
+      if (agentMatch) return agentMatch[1];
+
+      return undefined;
+    }
+
+    if (type === 'Pay Bill' || type === 'Buy Airtime') {
+      // "Paid to 4391279 UEDCL UEDCL" → "UEDCL"
+      // "Paid to 1097545 Bundles Mobile APP Bundles Mobile APP" → "Bundles Mobile APP"
+      const m = description.match(/Paid to \d+\s*(.+)/i);
+      return m ? this.dedup(m[1].trim()) : undefined;
     }
 
     return undefined;
+  }
+
+  /**
+   * Remove a name that the PDF repeats twice.
+   * Handles both clean-space copies and concatenated copies (no space at join):
+   *   "UEDCL UEDCL" → "UEDCL"
+   *   "HOUSING FINANCE BANK LIMITEDHOUSING FINANCE BANK LIMITED" → "HOUSING FINANCE BANK LIMITED"
+   *   "MC PREPAIDMC PREPAID" → "MC PREPAID"
+   */
+  private static dedup(name: string): string {
+    const s = name.trim();
+    const n = s.length;
+    // Character-level: try every split from ~1/3 to 1/2 of the string length
+    for (let i = Math.ceil(n / 3); i <= Math.floor((n + 1) / 2); i++) {
+      const candidate = s.substring(0, i);
+      const rest = s.substring(i).replace(/^\s+/, '');
+      if (rest === candidate) return candidate;
+    }
+    // Word-level fallback (evenly split word list)
+    const words = s.split(/\s+/);
+    const wn = words.length;
+    for (let split = 1; split <= Math.floor(wn / 2); split++) {
+      if (wn !== split * 2) continue;
+      const first = words.slice(0, split).join(' ');
+      const second = words.slice(split).join(' ');
+      if (first === second) return first;
+    }
+    return s;
+  }
+
+  /** "20-12-25" (DD-MM-YY) → "20/12/2025" */
+  private static convertTxDate(raw: string): string {
+    const [dd, mm, yy] = raw.split('-');
+    return `${dd}/${mm}/20${yy}`;
+  }
+
+  /**
+   * "20-Dec-25" (DD-Mon-YY from the Statement Period header) → "20/12/2025"
+   */
+  private static convertPeriodDate(raw: string): string {
+    const MONTHS: Record<string, string> = {
+      Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+      Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+    };
+    const m = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})$/);
+    if (!m) return raw;
+    return `${m[1]}/${MONTHS[m[2]] ?? '01'}/20${m[3]}`;
+  }
+
+  /** "02" + "11" + "PM" → "14:11:00" */
+  private static convertTime(hhmm: string, period: string): string {
+    const [hh, mm] = hhmm.split(':');
+    let hours = parseInt(hh, 10);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    return `${String(hours).padStart(2, '0')}:${mm}:00`;
+  }
+
+  /** "30,880.00" → 30880 */
+  private static parseAmount(raw: string): number {
+    return parseFloat(raw.replace(/,/g, '')) || 0;
   }
 }
