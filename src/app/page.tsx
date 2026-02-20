@@ -1,13 +1,14 @@
-<<<<<<< HEAD
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   FileText, Download, Shield, Zap, Upload, CheckCircle,
   Lock, Globe2, BarChart3, Smartphone, ArrowRight, X,
   AlertCircle, Loader2,
 } from 'lucide-react';
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 type Provider = 'MTN' | 'Airtel' | null;
 type ConvertState = 'idle' | 'converting' | 'success' | 'error';
@@ -40,12 +41,6 @@ function AirtelLogo({ className, invert = false }: { className?: string; invert?
     />
   );
 }
-=======
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Download, Shield, Zap } from "lucide-react";
-import Link from "next/link";
->>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
 
 export default function HomePage() {
   const [isDragging, setIsDragging] = useState(false);
@@ -118,11 +113,9 @@ export default function HomePage() {
         return;
       }
 
-      // Read transaction count from header
       const count = response.headers.get('X-Transaction-Count');
       if (count) setTxCount(parseInt(count, 10));
 
-      // Trigger browser download
       const blob = await response.blob();
       const disposition = response.headers.get('Content-Disposition') ?? '';
       const nameMatch = disposition.match(/filename="(.+?)"/);
@@ -161,7 +154,6 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* Brand icon: split diagonal — yellow left half, red right half */}
             <div className="w-8 h-8 rounded-lg overflow-hidden flex flex-shrink-0">
               <div className="flex-1 flex items-center justify-center" style={{ backgroundColor: MTN_YELLOW }}>
                 <FileText className="w-3 h-3" style={{ color: '#1a1a1a' }} />
@@ -178,22 +170,21 @@ export default function HomePage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center px-3 py-1.5 rounded-lg" style={{ backgroundColor: MTN_YELLOW }}>
-              <MTNLogo className="h-5 w-auto" />
-            </div>
-            <div className="flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-200">
-              <AirtelLogo className="h-5 w-auto" />
-            </div>
-<<<<<<< HEAD
-=======
-            <nav className="flex space-x-4">
-              <Button variant="ghost">How it Works</Button>
-              <Button variant="ghost">Pricing</Button>
-              <Link href="/convert">
-                <Button variant="outline">Try It Free</Button>
-              </Link>
-            </nav>
->>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="text-sm font-bold px-4 py-2 rounded-lg text-slate-900 transition-all hover:opacity-90" style={{ backgroundColor: MTN_YELLOW }}>
+                  Sign up free
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </div>
         </div>
       </header>
@@ -226,7 +217,6 @@ export default function HomePage() {
             <strong className="text-white">Airtel Money</strong> PDF statement and download
             a perfectly formatted CSV — ready for Excel, QuickBooks, or any accounting tool.
           </p>
-<<<<<<< HEAD
 
           <div className="flex flex-wrap justify-center gap-5 text-sm text-slate-400 mb-10">
             <div className="flex items-center gap-1.5"><Lock className="w-4 h-4 text-green-400" /><span>Never stored</span></div>
@@ -306,7 +296,6 @@ export default function HomePage() {
           </div>
 
           <div className="p-8">
-            {/* Drop Zone — only shown when not yet converted successfully */}
             {convertState !== 'success' && (
               <>
                 {!uploadedFile ? (
@@ -375,7 +364,6 @@ export default function HomePage() {
 
             <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} disabled={!selectedProvider} />
 
-            {/* Error message */}
             {convertState === 'error' && (
               <div className="mt-5 flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-5 py-4">
                 <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -386,7 +374,6 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Success message */}
             {convertState === 'success' && (
               <div className="flex flex-col items-center text-center py-6">
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
@@ -408,7 +395,6 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Convert button */}
             {convertState !== 'success' && (
               <>
                 <button
@@ -435,17 +421,6 @@ export default function HomePage() {
                 </p>
               </>
             )}
-=======
-          <div className="flex justify-center space-x-4">
-            <Link href="/convert">
-              <Button size="lg" className="text-lg px-8 py-3">
-                Try Free (5 conversions)
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-3">
-              View Demo
-            </Button>
->>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
           </div>
         </div>
       </section>
@@ -455,67 +430,71 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 mb-2">How It Works</h2>
-            <p className="text-slate-500">Three simple steps to clean financial data</p>
+            <p className="text-slate-500">Three steps to clean financial data</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: '1', icon: <Smartphone className="w-6 h-6" />, title: 'Choose Network', desc: 'Click the MTN or Airtel tab that matches your PDF statement.', accent: '#3b82f6' },
-              { step: '2', icon: <Upload className="w-6 h-6" />, title: 'Upload PDF', desc: 'Drag and drop your statement PDF or click to browse from your device.', accent: '#8b5cf6' },
-              { step: '3', icon: <Download className="w-6 h-6" />, title: 'Download CSV', desc: 'Get a clean, structured CSV instantly — compatible with Excel, QuickBooks & more.', accent: '#10b981' },
-            ].map(({ step, icon, title, desc, accent }) => (
-              <div key={step} className="relative flex flex-col items-center text-center">
-                <div className="relative w-20 h-20 rounded-2xl flex items-center justify-center mb-5 shadow-sm" style={{ backgroundColor: `${accent}18`, color: accent }}>
-                  <div className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full text-white text-xs font-bold flex items-center justify-center shadow" style={{ backgroundColor: accent }}>{step}</div>
-                  {icon}
+              { step: '01', icon: <Smartphone className="w-6 h-6" />, title: 'Export Your PDF', desc: 'Open your MTN or Airtel app, navigate to statements, and download your transaction history as a PDF.' },
+              { step: '02', icon: <Upload className="w-6 h-6" />, title: 'Upload to MOAir', desc: 'Select your network, drop the PDF, and hit Convert. No account required for free conversions.' },
+              { step: '03', icon: <Download className="w-6 h-6" />, title: 'Download CSV', desc: 'Your clean CSV arrives instantly — with dates, amounts, fees, taxes, counterparties and references.' },
+            ].map(({ step, icon, title, desc }) => (
+              <div key={step} className="relative text-center">
+                <div className="inline-flex flex-col items-center">
+                  <div className="text-xs font-black text-slate-300 mb-3 tracking-widest">{step}</div>
+                  <div className="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-4 shadow-lg">{icon}</div>
+                  <h3 className="font-bold text-slate-900 text-lg mb-2">{title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed max-w-xs">{desc}</p>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SUPPORTED PROVIDERS ── */}
+      {/* ── PROVIDER CARDS ── */}
       <section id="providers" className="py-16 px-4 bg-slate-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Supported Mobile Networks</h2>
-            <p className="text-slate-500">Full support for Africa's leading mobile money platforms</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Supported Networks</h2>
+            <p className="text-slate-500">Precision-tuned for the formats used by each provider</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
+
             {/* MTN Card */}
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-              <div className="px-8 py-7 flex items-center gap-5" style={{ backgroundColor: MTN_YELLOW }}>
-                <div className="w-16 h-16 rounded-xl bg-black/10 flex items-center justify-center p-2">
-                  <MTNLogo className="w-full h-auto" />
-                </div>
+            <div className="rounded-2xl overflow-hidden shadow-md border border-slate-200">
+              <div className="px-8 py-6 flex items-center justify-between" style={{ backgroundColor: MTN_YELLOW }}>
                 <div>
-                  <h3 className="text-xl font-extrabold text-slate-900">MTN Mobile Money</h3>
-                  <p className="text-sm font-medium text-slate-700 opacity-80">MoMo · Uganda &amp; beyond</p>
+                  <MTNLogo className="h-10 w-auto mb-2" />
+                  <p className="text-sm font-medium text-yellow-900">MTN Mobile Money</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-yellow-800 font-semibold uppercase tracking-widest">Uganda</p>
+                  <p className="text-sm font-medium text-yellow-900">MTN · MoMo</p>
                 </div>
               </div>
               <div className="bg-white px-8 py-6">
                 <ul className="space-y-3">
-                  {['Send Money transactions', 'Receive Money transactions', 'Merchant payments', 'Withdraw & Deposit records', 'Airtime purchases', 'Opening & Closing balances'].map((item) => (
+                  {['Send Money transactions', 'Receive Money transactions', 'Cash Out (Withdraw)', 'Cash In (Deposit)', 'Bill payments', 'Airtime & data top-ups'].map((item) => (
                     <li key={item} className="flex items-center gap-3 text-sm text-slate-700">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#b8960a' }} />{item}
+                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: MTN_YELLOW }} />{item}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => scrollToUpload('MTN')} className="mt-6 w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90" style={{ backgroundColor: MTN_YELLOW, color: '#1a1a1a' }}>
+                <button onClick={() => scrollToUpload('MTN')} className="mt-6 w-full py-3 rounded-xl font-bold text-sm text-slate-900 flex items-center justify-center gap-2 transition-all hover:opacity-80" style={{ backgroundColor: MTN_YELLOW }}>
                   Convert MTN Statement <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
+
             {/* Airtel Card */}
-            <div className="rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-              <div className="px-8 py-7 flex items-center gap-5" style={{ backgroundColor: AIRTEL_RED }}>
-                <div className="w-16 h-16 rounded-xl bg-white/20 flex items-center justify-center p-2.5">
-                  <AirtelLogo className="w-full h-auto" invert={true} />
-                </div>
+            <div className="rounded-2xl overflow-hidden shadow-md border border-slate-200">
+              <div className="px-8 py-6 flex items-center justify-between" style={{ backgroundColor: AIRTEL_RED }}>
                 <div>
-                  <h3 className="text-xl font-extrabold text-white">Airtel Money</h3>
+                  <AirtelLogo className="h-10 w-auto mb-2" invert />
+                  <p className="text-sm font-medium text-red-100">Airtel Money</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-red-200 font-semibold uppercase tracking-widest">Uganda &amp; beyond</p>
                   <p className="text-sm font-medium text-red-100">Airtel · Uganda &amp; beyond</p>
                 </div>
               </div>
@@ -536,7 +515,6 @@ export default function HomePage() {
         </div>
       </section>
 
-<<<<<<< HEAD
       {/* ── FEATURES ── */}
       <section className="py-16 px-4 bg-white border-y border-slate-200">
         <div className="max-w-5xl mx-auto">
@@ -557,45 +535,6 @@ export default function HomePage() {
                 <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
               </div>
             ))}
-=======
-        {/* Pricing Preview */}
-        <div className="bg-gray-50 rounded-2xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Simple, Fair Pricing</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="border-2 border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-xl">Free Tier</CardTitle>
-                <p className="text-3xl font-bold">$0/month</p>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p>✅ 5 conversions per month</p>
-                <p>✅ MTN & Airtel support</p>
-                <p>✅ Basic CSV format</p>
-                <Link href="/convert">
-                  <Button className="w-full mt-4">Get Started Free</Button>
-                </Link>
-              </CardContent>
-            </Card>
-            <Card className="border-2 border-blue-500 relative">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
-                Most Popular
-              </div>
-              <CardHeader>
-                <CardTitle className="text-xl">Pro</CardTitle>
-                <p className="text-3xl font-bold">$25/month</p>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p>✅ Unlimited conversions</p>
-                <p>✅ Advanced categorization</p>
-                <p>✅ Bulk upload</p>
-                <p>✅ Custom CSV templates</p>
-                <p>✅ Priority support</p>
-                <Link href="/convert">
-                  <Button className="w-full mt-4">Upgrade to Pro</Button>
-                </Link>
-              </CardContent>
-            </Card>
->>>>>>> 4a7f9b142140b32ba8b3bc3ea0179a43cc88ee17
           </div>
         </div>
       </section>
@@ -646,10 +585,8 @@ export default function HomePage() {
 
             {/* Enterprise */}
             <div className="bg-white rounded-2xl border-2 border-slate-900 p-8 shadow-sm flex flex-col relative overflow-hidden">
-              {/* Subtle diagonal accent */}
               <div className="absolute top-0 right-0 w-24 h-24 opacity-5"
                 style={{ background: `linear-gradient(135deg, ${MTN_YELLOW}, ${AIRTEL_RED})`, borderRadius: '0 1rem 0 100%' }} />
-
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Enterprise</p>
               <p className="text-5xl font-extrabold text-slate-900 mb-1">Custom</p>
               <p className="text-slate-500 text-sm mb-6">tailored to your needs</p>
@@ -707,9 +644,9 @@ export default function HomePage() {
           <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <p>© {new Date().getFullYear()} MOAir. All rights reserved.</p>
             <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-slate-300 transition-colors">Terms of Use</a>
-              <a href="#" className="hover:text-slate-300 transition-colors">Contact</a>
+              <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms of Use</Link>
+              <Link href="/contact" className="hover:text-slate-300 transition-colors">Contact</Link>
             </div>
           </div>
         </div>
